@@ -1,0 +1,192 @@
+<!-- WAservix config -->
+<script type="text/javascript">
+  RED.nodes.registerType('waservix-config', {
+    category: 'config',
+    defaults: {
+      name: { value: '' },
+      baseUrl: { value: 'https://tekservix.com/waservix/api', required: true },
+    },
+    credentials: { apiKey: { type: 'password', required: true } },
+    label: function () {
+      return this.name || 'WAservix';
+    },
+  });
+</script>
+<script type="text/html" data-template-name="waservix-config">
+  <div class="form-row">
+    <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-config-input-name" placeholder="WAservix" />
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-apiKey"><i class="fa fa-key"></i> API key</label>
+    <input type="password" id="node-config-input-apiKey" placeholder="API key of your number" />
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-baseUrl"><i class="fa fa-globe"></i> Base URL</label>
+    <input type="text" id="node-config-input-baseUrl" />
+  </div>
+</script>
+<script type="text/html" data-help-name="waservix-config">
+  <p>Your WhatsApp number on WAservix. Copy its API key from the WAservix dashboard under <b>Devices</b>. Leave the base URL as it is.</p>
+</script>
+
+<!-- WAservix send -->
+<script type="text/javascript">
+  RED.nodes.registerType('waservix-send', {
+    category: 'network',
+    color: '#86EFAC',
+    defaults: {
+      name: { value: '' },
+      config: { type: 'waservix-config', required: true },
+      to: { value: '' },
+      text: { value: '' },
+    },
+    inputs: 1,
+    outputs: 1,
+    icon: 'waservix.svg',
+    align: 'right',
+    paletteLabel: 'waservix send',
+    label: function () {
+      return this.name || 'WAservix send';
+    },
+  });
+</script>
+<script type="text/html" data-template-name="waservix-send">
+  <div class="form-row">
+    <label for="node-input-config"><i class="fa fa-user"></i> Number</label>
+    <input type="text" id="node-input-config" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-to"><i class="fa fa-phone"></i> To</label>
+    <input type="text" id="node-input-to" placeholder="+15551234567 or group ...@g.us" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-text"><i class="fa fa-comment"></i> Text</label>
+    <input type="text" id="node-input-text" placeholder="Used when msg.payload is empty" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" />
+  </div>
+</script>
+<script type="text/html" data-help-name="waservix-send">
+  <p>Sends a WhatsApp message from your own number with <a href="https://tekservix.com/waservix/" target="_blank">WAservix</a>.</p>
+  <h3>Inputs</h3>
+  <dl class="message-properties">
+    <dt>payload <span class="property-type">string | object</span></dt>
+    <dd>A string is sent as text. An object is sent as the full API body, e.g. <code>{ "poll": { "name": "Lunch?", "options": ["Yes","No"] } }</code>.</dd>
+    <dt class="optional">to <span class="property-type">string</span></dt>
+    <dd>Number in international format, or a group JID (<code>...@g.us</code>). Overrides <i>To</i>.</dd>
+    <dt class="optional">imageUrl / videoUrl / audioUrl / documentUrl <span class="property-type">string</span></dt>
+    <dd>Send media by URL. Use <code>msg.caption</code> for a caption and <code>msg.fileName</code> for documents.</dd>
+    <dt class="optional">location <span class="property-type">object</span></dt>
+    <dd><code>{ latitude, longitude, name }</code>.</dd>
+    <dt class="optional">replyTo, mentions <span class="property-type">string, array</span></dt>
+    <dd>Reply to a message, mention people in a group.</dd>
+  </dl>
+  <h3>Outputs</h3>
+  <dl class="message-properties">
+    <dt>payload <span class="property-type">object</span></dt>
+    <dd><code>{ msgId, jid, status: "in_progress" }</code>. Check status with the <i>waservix api</i> node (<code>GET /messages/&lt;msgId&gt;/info</code>).</dd>
+  </dl>
+  <p>Errors can be caught with a <i>catch</i> node; <code>msg.error</code> holds <code>status</code> and <code>message</code>. A 503 means the number is reconnecting.</p>
+</script>
+
+<!-- WAservix API -->
+<script type="text/javascript">
+  RED.nodes.registerType('waservix-api', {
+    category: 'network',
+    color: '#86EFAC',
+    defaults: {
+      name: { value: '' },
+      config: { type: 'waservix-config', required: true },
+      method: { value: 'GET' },
+      path: { value: '/status', required: true },
+    },
+    inputs: 1,
+    outputs: 1,
+    icon: 'waservix.svg',
+    paletteLabel: 'waservix api',
+    label: function () {
+      return this.name || this.method + ' ' + this.path;
+    },
+  });
+</script>
+<script type="text/html" data-template-name="waservix-api">
+  <div class="form-row">
+    <label for="node-input-config"><i class="fa fa-user"></i> Number</label>
+    <input type="text" id="node-input-config" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-method"><i class="fa fa-exchange"></i> Method</label>
+    <select id="node-input-method">
+      <option>GET</option>
+      <option>POST</option>
+      <option>PUT</option>
+      <option>DELETE</option>
+    </select>
+  </div>
+  <div class="form-row">
+    <label for="node-input-path"><i class="fa fa-link"></i> Path</label>
+    <input type="text" id="node-input-path" placeholder="/groups" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" />
+  </div>
+</script>
+<script type="text/html" data-help-name="waservix-api">
+  <p>Calls any endpoint of the <a href="https://tekservix.com/waservix/docs/" target="_blank">WAservix API</a> and returns its <code>data</code>.</p>
+  <p>Examples: <code>GET /status</code>, <code>GET /on-whatsapp/+15551234567</code>, <code>GET /messages/58213/info</code>, <code>GET /groups</code>, <code>GET /contacts</code>.</p>
+  <h3>Inputs</h3>
+  <dl class="message-properties">
+    <dt class="optional">method, path <span class="property-type">string</span></dt>
+    <dd>Override the node settings.</dd>
+    <dt class="optional">payload <span class="property-type">object</span></dt>
+    <dd>JSON body for POST and PUT.</dd>
+  </dl>
+</script>
+
+<!-- WAservix webhook -->
+<script type="text/javascript">
+  RED.nodes.registerType('waservix-webhook', {
+    category: 'network',
+    color: '#86EFAC',
+    defaults: {
+      name: { value: '' },
+      events: { value: 'messages.received' },
+    },
+    credentials: { secret: { type: 'password' } },
+    inputs: 1,
+    outputs: 2,
+    outputLabels: ['event', 'reply (send to http response)'],
+    icon: 'waservix.svg',
+    paletteLabel: 'waservix webhook',
+    label: function () {
+      return this.name || 'WAservix webhook';
+    },
+  });
+</script>
+<script type="text/html" data-template-name="waservix-webhook">
+  <div class="form-row">
+    <label for="node-input-secret"><i class="fa fa-lock"></i> Secret</label>
+    <input type="password" id="node-input-secret" placeholder="Webhook secret of your number" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-events"><i class="fa fa-filter"></i> Events</label>
+    <input type="text" id="node-input-events" placeholder="messages.received, messages.update (empty = all)" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" />
+  </div>
+</script>
+<script type="text/html" data-help-name="waservix-webhook">
+  <p>Receives WAservix webhooks: incoming messages, status updates, reactions, calls and session changes.</p>
+  <p>Wire it as <i>http in</i> (POST) → <b>waservix webhook</b> → your flow, and connect output 2 (and the end of your flow) to an <i>http response</i> node. Set your Node-RED URL as the webhook of your number in the WAservix dashboard and paste its secret here.</p>
+  <h3>Outputs</h3>
+  <ol class="node-ports">
+    <li>Event: <code>msg.payload</code> is the event, <code>msg.topic</code> its name (e.g. <code>messages.received</code>). For a message, <code>msg.payload.data.messages.key.cleanedSenderPn</code> is the sender and <code>msg.payload.data.messages.messageBody</code> the text.</li>
+    <li>Rejected or filtered requests, with <code>msg.statusCode</code> (401 or 200) for an http response node.</li>
+  </ol>
+</script>
