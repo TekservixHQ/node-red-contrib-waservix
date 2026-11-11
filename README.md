@@ -3,6 +3,8 @@
 [![npm](https://img.shields.io/npm/v/node-red-contrib-waservix.svg)](https://www.npmjs.com/package/node-red-contrib-waservix)
 [![tests](https://github.com/TekservixHQ/node-red-contrib-waservix/actions/workflows/tests.yml/badge.svg)](https://github.com/TekservixHQ/node-red-contrib-waservix/actions/workflows/tests.yml)
 
+**WAservix WhatsApp API Gateway** - official Node-RED nodes: send WhatsApp messages from your own number, react to incoming messages and status updates.
+
 Node-RED nodes for [WAservix](https://tekservix.com/waservix/), the WhatsApp API gateway that sends from your own number.
 
 WAservix links your WhatsApp number by QR code (the same way WhatsApp Web does). These nodes send text, images, documents, locations and polls from any flow, and react to incoming messages and status updates: alerts from Home Assistant or sensors, order notifications, chatbots and more.
